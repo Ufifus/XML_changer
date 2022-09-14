@@ -102,7 +102,6 @@ def main():
         # xslt = ET.parse(file_xsl)
         transform = ETT.XSLT(xslt)
         newdom = transform(dom)
-
         html = ETT.tostring(newdom, pretty_print=True)
         st.components.v1.html(html, width=None, height=960, scrolling=True)
 
