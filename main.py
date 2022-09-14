@@ -42,18 +42,33 @@ def main():
     clear_plot()
     doc_type = st.sidebar.selectbox(
         "Выбор документа",
-        ("Эпикриз законченный короткий", "Эпикриз законченный полный", "Приложение_Д", "Приложение_Е")
+        ("Эпикриз законченный короткий", "Эпикриз законченный полный", "Эпикриз выписной в стационаре min","Эпикриз выписной в стационаре max", "Приложение_Д", "Приложение_Е")
     )
-
-    path = os.path.abspath('data/epi_amb/')  # название папки с файлами
+    # path = os.path.abspath('data/epi_amb/')  # название папки с файлами
     if(doc_type == 'Эпикриз законченный короткий'):
         file_name = 'CDADocumentRuAmbulatorySummury_min.xml'
+        path = os.path.abspath('data/epi_amb/')  # название папки с файлами
+        xsl_file_name = 'AmbSum.xsl'
+    elif (doc_type == 'Эпикриз выписной в стационаре min'):
+        file_name = 'CDADocumentRuDischargeSummury_min.xml'
+        path = os.path.abspath('data/epi_stac/')  # название папки с файлами
+        xsl_file_name = 'DischSum.xsl'
+    elif (doc_type == 'Эпикриз выписной в стационаре max'):
+        file_name = 'CDADocumentRuDischargeSummury_max.xml'
+        path = os.path.abspath('data/epi_stac/')  # название папки с файлами
+        xsl_file_name = 'DischSum.xsl'
     elif(doc_type == 'Приложение_Д'):
         file_name = 'pril_D.xml'
+        path = os.path.abspath('data/epi_amb/')  # название папки с файлами
+        xsl_file_name = 'AmbSum.xsl'
     elif(doc_type == 'Приложение_Е'):
         file_name = 'pril_E.xml'
+        path = os.path.abspath('data/epi_amb/')  # название папки с файлами
+        xsl_file_name = 'AmbSum.xsl'
     else:
         file_name = 'CDADocumentRuAmbulatorySummury_max.xml'
+        path = os.path.abspath('data/epi_amb/')  # название папки с файлами
+        xsl_file_name = 'AmbSum.xsl'
 
     file_xml = os.path.join(path, file_name)
     # tree = ET.parse(os.path.join(path, file_name))
@@ -79,7 +94,6 @@ def main():
             st.success("xml-файл не содержит ошибок")
 
     with st.expander("XМL-ПРЕОБРАЗОВАНИЕ"):
-        xsl_file_name = 'AmbSum.xsl'
         try:
             xslt = ETT.parse(os.path.join(path, xsl_file_name))
         except ValueError:
@@ -97,7 +111,7 @@ def main():
 
     # col1, col2 = st.columns([1, 3])
     st.sidebar.info("Структура документа по уровням")
-    st.success("Содержание. Клинический документ: CD.Эпикриз по законченному случаю.")
+    st.success("Содержание. Клинический документ: CD."+doc_type)
 
     fileptr = open(file_xml, encoding="utf8")
     # read xml content from the file
