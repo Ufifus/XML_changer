@@ -2,20 +2,27 @@
 # в читаемом виде
 # Разработка ПО - e.fartushnyi@d-health.institute
 # --------------------------------------------------------------------
-import xml.etree.ElementTree as ET
+# import xml.etree.ElementTree as ET
 import os
 from lxml import etree
 import streamlit as st
-
 import xmltodict
-import pprint
-import json
-import pandas as pd
+import lxml.etree as ETT
 
+# import pprint
+# import json
+# import pandas as pd
 # from io import StringIO
 # from lxml.etree import XML, XSLT, parse
 
-import lxml.etree as ETT
+def clear_plot():
+    hide_streamlit_style = """
+                    <style>
+                    #MainMenu {visibility: hidden;}
+                    footer {visibility: hidden;}
+                    </style>
+                    """
+    st.markdown(hide_streamlit_style, unsafe_allow_html=True)
 
 
 def keys_by_depth(dict_, depth=0, output=None):
@@ -31,15 +38,15 @@ def keys_by_depth(dict_, depth=0, output=None):
 
 
 def main():
-
-    st.set_page_config(layout = 'wide',)
+    st.set_page_config(layout='wide', )
+    clear_plot()
     doc_type = st.sidebar.selectbox(
         "Выбор документа",
-        ("Выписной эпикриз короткий", "Выписной эпикриз полный", "Приложение_Д", "Приложение_Е")
+        ("Эпикриз законченный короткий", "Эпикриз законченный полный", "Приложение_Д", "Приложение_Е")
     )
 
     path = os.path.abspath('data/epi_amb/')  # название папки с файлами
-    if(doc_type == 'Выписной эпикриз короткий'):
+    if(doc_type == 'Эпикриз законченный короткий'):
         file_name = 'CDADocumentRuAmbulatorySummury_min.xml'
     elif(doc_type == 'Приложение_Д'):
         file_name = 'pril_D.xml'
@@ -52,7 +59,7 @@ def main():
     # tree = ET.parse(os.path.join(path, file_name))
 
     # Проверка xsd
-    with st.expander("Валидация схем по .xsd"):
+    with st.expander("Валидация документа по схеме .xsd"):
         xsd_file_name = 'CDA.xsd'
         try:
             schema_root = etree.parse(os.path.join(path, xsd_file_name))
@@ -71,7 +78,7 @@ def main():
         else:
             st.success("xml-файл не содержит ошибок")
 
-    with st.expander("XSL - ПРЕОБРАЗОВАНИЕ"):
+    with st.expander("XМL-ПРЕОБРАЗОВАНИЕ"):
         xsl_file_name = 'AmbSum.xsl'
         try:
             xslt = ETT.parse(os.path.join(path, xsl_file_name))
@@ -90,7 +97,7 @@ def main():
 
     # col1, col2 = st.columns([1, 3])
     st.sidebar.info("Структура документа по уровням")
-    st.success("Содержание. Клинический документ: CD.Эпикриз-выписной.Законченный ")
+    st.success("Содержание. Клинический документ: CD.Эпикриз по законченному случаю.")
 
     fileptr = open(file_xml, encoding="utf8")
     # read xml content from the file
