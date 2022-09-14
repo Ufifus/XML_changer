@@ -52,8 +52,8 @@ def main():
         # st.write(schema)
         xml = etree.parse(file_xml)
         if not schema.validate(xml):
-            st.info("xml-файл содержит ошибки и не соответсвует xsd. Протокол ошибок ниже :" )
-            st.write(schema.error_log)
+            st.error("xml-файл содержит ошибки и не соответсвует xsd-схеме. Протокол ошибок ниже :" )
+            st.error(schema.error_log)
         else:
             st.success("xml-файл не содержит ошибок")
 
