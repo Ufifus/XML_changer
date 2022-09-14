@@ -4,7 +4,7 @@
 # --------------------------------------------------------------------
 import xml.etree.ElementTree as ET
 import os
-
+from lxml import etree
 import streamlit as st
 
 import xmltodict
@@ -34,31 +34,32 @@ def main():
         "Выбор документа",
         ("Выписной эпикриз короткий", "Выписной эпикриз полный")
     )
-    # st.sidebar.write(doc_type)
-    # print(doc_type)
-    # Глубина
-    # with st.sidebar:
-    #     add_radio = st.radio(
-    #         "Method",
-    #         ("Standard (5-15 days)", "Express (2-5 days)")
-    #     )
-    # st.success("Клинический документ: CD.Эпикриз-выписной.Законченный")
-    col1, col2 = st.columns([1,4])
+
+    path = os.path.abspath('data/epi_amb/')  # название папки с файлами
+    if(doc_type == 'Выписной эпикриз короткий'):
+        file_name = 'CDADocumentRuAmbulatorySummury_min.xml'
+    else:
+        file_name = 'CDADocumentRuAmbulatorySummury_max.xml'
+    file_xml = os.path.join(path, file_name)
+    # tree = ET.parse(os.path.join(path, file_name))
+
+    # Проверка xsd
+    with st.expander("Валидация схем по .xsd"):
+        xsd_file_name = 'CDA.xsd'
+        schema_root = etree.parse(os.path.join(path,xsd_file_name))
+        # st.write(schema_root)
+        schema = etree.XMLSchema(schema_root)
+        # st.write(schema)
+        xml = etree.parse(file_xml)
+        if not schema.validate(xml):
+            st.info("xml-файл содержит ошибки и не соответсвует xsd. Протокол ошибок ниже :" )
+            st.write(schema.error_log)
+        else:
+            st.success("xml-файл не содержит ошибок")
+
+    col1, col2 = st.columns([1, 3])
     col1.info("Структура документа по уровням")
     col2.success("Содержание. Клинический документ: CD.Эпикриз-выписной.Законченный ")
-    path = os.path.abspath('data/epi_amb/')  # название папки с файлами
-    # file_name = st.upload("Выберите файл для загрузки")
-    # file = st.file_uploader('Загрузите файл :')
-    if(doc_type == 'Выписной эпикриз короткий'):
-        file_name = 'SampleCDADocumentRuAmbulatorySummury_min.xml'
-    else:
-        file_name = 'SampleCDADocumentRuAmbulatorySummury_max.xml'
-    file_xml = os.path.join(path, file_name)
-    # print(file_xml)
-    tree = ET.parse(os.path.join(path, file_name))
-    root = tree.getroot()
-    # for child in root:
-    #     print(child.tag, child.attrib)
 
     fileptr = open(file_xml, encoding="utf8")
     # read xml content from the file
