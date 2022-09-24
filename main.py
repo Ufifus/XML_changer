@@ -80,10 +80,11 @@ def main():
             schema_root = etree.parse(os.path.join(path, xsd_file_name))
         except ValueError:
             st.error(ValueError)
+
         # st.write(schema_root)
         schema = etree.XMLSchema(schema_root)
-        # st.write(schema)
         xml = etree.parse(file_xml)
+
         if not schema.validate(xml):
             try:
                 st.error("xml-файл содержит ошибки и не соответсвует xsd-схеме. Протокол ошибок ниже :" )
@@ -107,11 +108,8 @@ def main():
 
         # st.write(ETT.tostring(newdom, pretty_print=True))
 
-
-    # col1, col2 = st.columns([1, 3])
     st.sidebar.info("Структура документа по уровням")
     st.success("Содержание. Клинический документ: CD."+doc_type)
-
     fileptr = open(file_xml, encoding="utf8")
     # read xml content from the file
     xml_content = fileptr.read()
@@ -123,6 +121,7 @@ def main():
     # print('Ключи - '+str(keys))
     st.sidebar.write(keys)
     st.write(xml_dict)
+
 
 if __name__ == '__main__':
     main()
