@@ -9,6 +9,9 @@ import streamlit as st
 import xmltodict
 import lxml.etree as ETT
 
+import shutil
+
+
 # import pprint
 # import json
 # import pandas as pd
@@ -42,33 +45,61 @@ def main():
     clear_plot()
     doc_type = st.sidebar.selectbox(
         "Выбор документа",
-        ("Эпикриз законченный короткий", "Эпикриз законченный полный", "Эпикриз выписной в стационаре min","Эпикриз выписной в стационаре max", "Приложение_Д", "Приложение_Е")
+        ("Эпикриз законченный короткий", "Эпикриз законченный полный", "Эпикриз выписной в стационаре min","Эпикриз выписной в стационаре max", "Наш_тест","Тест_1010","Приложение_Д", "Приложение_Е"),
+        index=3,
     )
-    # path = os.path.abspath('data/epi_amb/')  # название папки с файлами
-    if(doc_type == 'Эпикриз законченный короткий'):
-        file_name = 'CDADocumentRuAmbulatorySummury_min.xml'
-        path = os.path.abspath('data/epi_amb/')  # название папки с файлами
-        xsl_file_name = 'AmbSum.xsl'
-    elif (doc_type == 'Эпикриз выписной в стационаре min'):
-        file_name = 'CDADocumentRuDischargeSummury_min.xml'
-        path = os.path.abspath('data/epi_stac/')  # название папки с файлами
-        xsl_file_name = 'DischSum.xsl'
-    elif (doc_type == 'Эпикриз выписной в стационаре max'):
-        file_name = 'CDADocumentRuDischargeSummury_max.xml'
-        path = os.path.abspath('data/epi_stac/')  # название папки с файлами
-        xsl_file_name = 'DischSum.xsl'
-    elif(doc_type == 'Приложение_Д'):
-        file_name = 'pril_D.xml'
-        path = os.path.abspath('data/epi_amb/')  # название папки с файлами
-        xsl_file_name = 'AmbSum.xsl'
-    elif(doc_type == 'Приложение_Е'):
-        file_name = 'pril_E.xml'
-        path = os.path.abspath('data/epi_amb/')  # название папки с файлами
-        xsl_file_name = 'AmbSum.xsl'
+
+    uploaded_file = st.file_uploader('Загрузите произвольный xml-:')
+    if uploaded_file:
+        print(uploaded_file)
+        if uploaded_file is not None:
+            # To read file as bytes:
+            bytes_data = uploaded_file.getvalue()
+            with open("data/epi_stac/test_777.xml", "wb") as binary_file:
+                # Write bytes to file
+                binary_file.write(bytes_data)
+            binary_file.close()
+            file_name = 'test_777.xml'
+            path = os.path.abspath('data/epi_stac/')  # название папки с файлами
+            xsl_file_name = 'DischSum.xsl'
     else:
-        file_name = 'CDADocumentRuAmbulatorySummury_max.xml'
-        path = os.path.abspath('data/epi_amb/')  # название папки с файлами
-        xsl_file_name = 'AmbSum.xsl'
+        # path = os.path.abspath('data/epi_amb/')  # название папки с файлами
+        if(doc_type == 'Эпикриз законченный короткий'):
+            file_name = 'CDADocumentRuAmbulatorySummury_min.xml'
+            path = os.path.abspath('data/epi_amb/')  # название папки с файлами
+            xsl_file_name = 'AmbSum.xsl'
+        elif (doc_type == 'Эпикриз законченный полный'):
+            file_name = 'CDADocumentRuAmbulatorySummury_max.xml'
+            path = os.path.abspath('data/epi_amb/')  # название папки с файлами
+            xsl_file_name = 'AmbSum.xsl'
+        elif (doc_type == 'Эпикриз выписной в стационаре min'):
+            file_name = 'CDADocumentRuDischargeSummury_min.xml'
+            path = os.path.abspath('data/epi_stac/')  # название папки с файлами
+            xsl_file_name = 'DischSum.xsl'
+        elif (doc_type == 'Эпикриз выписной в стационаре max'):
+            file_name = 'CDADocumentRuDischargeSummury_max.xml'
+            path = os.path.abspath('data/epi_stac/')  # название папки с файлами
+            xsl_file_name = 'DischSum.xsl'
+        elif(doc_type == 'Приложение_Д'):
+            file_name = 'pril_D.xml'
+            path = os.path.abspath('data/epi_amb/')  # название папки с файлами
+            xsl_file_name = 'AmbSum.xsl'
+        elif(doc_type == 'Приложение_Е'):
+            file_name = 'pril_E.xml'
+            path = os.path.abspath('data/epi_amb/')  # название папки с файлами
+            xsl_file_name = 'AmbSum.xsl'
+        elif (doc_type == 'Наш_тест'):
+            file_name = 'd1224.xml'
+            path = os.path.abspath('data/epi_stac/')  # название папки с файлами
+            xsl_file_name = 'DischSum.xsl'
+        elif (doc_type == 'Tест_1010'):
+            file_name = 't10.xml'
+            path = os.path.abspath('data/epi_stac/')  # название папки с файлами
+            xsl_file_name = 'DischSum.xsl'
+        else:
+            file_name = 'CDADocumentRuDischargeSummury_max.xml'
+            path = os.path.abspath('data/epi_stac/')  # название папки с файлами
+            xsl_file_name = 'DischSum.xsl'
 
     file_xml = os.path.join(path, file_name)
     # tree = ET.parse(os.path.join(path, file_name))
@@ -94,7 +125,7 @@ def main():
         else:
             st.success("xml-файл не содержит ошибок")
 
-    with st.expander("XМL-ПРЕОБРАЗОВАНИЕ"):
+    with st.expander("XМL-ПРЕОБРАЗОВАНИЕ", expanded=True):
         try:
             xslt = ETT.parse(os.path.join(path, xsl_file_name))
         except ValueError:
@@ -108,19 +139,20 @@ def main():
 
         # st.write(ETT.tostring(newdom, pretty_print=True))
 
-    st.sidebar.info("Структура документа по уровням")
-    st.success("Содержание. Клинический документ: CD."+doc_type)
-    fileptr = open(file_xml, encoding="utf8")
-    # read xml content from the file
-    xml_content = fileptr.read()
-    # print("XML content is:")
-    # print(xml_content)
+    # st.sidebar.info("")
+    with st.expander("Структура документа по уровням", expanded=False):
+        st.success("Содержание. Клинический документ: CD."+doc_type)
+        fileptr = open(file_xml, encoding="utf8")
+        # read xml content from the file
+        xml_content = fileptr.read()
+        # print("XML content is:")
+        # print(xml_content)
 
-    xml_dict = xmltodict.parse(xml_content)
-    keys = keys_by_depth(xml_dict)
-    # print('Ключи - '+str(keys))
-    st.sidebar.write(keys)
-    st.write(xml_dict)
+        xml_dict = xmltodict.parse(xml_content)
+        keys = keys_by_depth(xml_dict)
+        # print('Ключи - '+str(keys))
+        st.sidebar.write(keys)
+        st.write(xml_dict)
 
 
 if __name__ == '__main__':
