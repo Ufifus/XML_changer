@@ -45,7 +45,7 @@ def main():
     clear_plot()
     doc_type = st.sidebar.selectbox(
         "Выбор документа",
-        ("Эпикриз законченный короткий", "Эпикриз законченный полный", "Эпикриз выписной в стационаре min","Эпикриз выписной в стационаре max", "Наш_тест","Тест_1010","Приложение_Д", "Приложение_Е"),
+        ("Эпикриз законченный короткий", "Эпикриз законченный полный", "Эпикриз выписной в стационаре min","Эпикриз выписной в стационаре max", "Приложение_Д", "Приложение_Е"),
         index=3,
     )
 
@@ -88,14 +88,14 @@ def main():
             file_name = 'pril_E.xml'
             path = os.path.abspath('data/epi_amb/')  # название папки с файлами
             xsl_file_name = 'AmbSum.xsl'
-        elif (doc_type == 'Наш_тест'):
-            file_name = 'd1224.xml'
-            path = os.path.abspath('data/epi_stac/')  # название папки с файлами
-            xsl_file_name = 'DischSum.xsl'
-        elif (doc_type == 'Tест_1010'):
-            file_name = 't10.xml'
-            path = os.path.abspath('data/epi_stac/')  # название папки с файлами
-            xsl_file_name = 'DischSum.xsl'
+        # elif (doc_type == 'Наш_тест'):
+        #     file_name = 'd1224.xml'
+        #     path = os.path.abspath('data/epi_stac/')  # название папки с файлами
+        #     xsl_file_name = 'DischSum.xsl'
+        # elif (doc_type == 'Tест_1010'):
+        #     file_name = 't10.xml'
+        #     path = os.path.abspath('data/epi_stac/')  # название папки с файлами
+        #     xsl_file_name = 'DischSum.xsl'
         else:
             file_name = 'CDADocumentRuDischargeSummury_max.xml'
             path = os.path.abspath('data/epi_stac/')  # название папки с файлами
