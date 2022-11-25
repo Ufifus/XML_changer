@@ -17,6 +17,7 @@ if __name__ == '__main__':
         redactor = Redactor(xml_file)
         redactor.loader()
 
+
         view, change = st.columns(2)
 
         with view:
@@ -29,12 +30,12 @@ if __name__ == '__main__':
 
 
             # tables, subtitle_content, lists = redactor.select_title(title)
-            tables, title_content= redactor.select_title(title)
+            tables, title_content = redactor.select_title(title)
             subtitle = st.selectbox('Choice subtitle', redactor.get_subtitles(title_content))
             if tables:
                 subtitle_content = redactor.select_subtitle(subtitle)
                 save_table = st.checkbox('Save table', value=True)
-                st.write(subtitle_content.parent.parent.contents)
+
                 if not save_table:
                     tables = False
                     subtitle_content = subtitle_content.parent
@@ -42,37 +43,41 @@ if __name__ == '__main__':
                 subtitle_content = title_content
 
             if tables:
-                max_height, max_width = redactor.parce_table(subtitle_content)
-                with st.form(key='update table xml'):
-                    i = st.number_input('X', min_value=0, max_value=max_height + 1, value=0, step=1)
-                    j = st.number_input('Y', min_value=0, max_value=max_width + 1, value=0, step=1)
-                    change = st.text_input('Input text in cell table')
-                    st.form_submit_button(label='update', on_click=redactor.change_cell(subtitle_content, i, j,
-                                                                                        max_height, max_width, change))
-            # elif lists:
-            #     items = redactor.get_items(subtitle_content)
-            #     if not items:
-            #         """Пока оставим т.к не знаю как делать может через регулярные выражения"""
-            #     else:
-            #         item = st.selectbox('Choice line', items+['append'])
-            #         with st.form(key='update list xml'):
-            #             change = st.text_input('Input text in item')
-            #             if change == '':
-            #                 st.form_submit_button(label='update')
-            #             else:
-            #                 st.form_submit_button(label='update', on_click=redactor.change_list(subtitle_content, item, change))
+                full_table = st.checkbox('Refactor full table', value=False)
+                placeholder = st.empty()
+
+                with placeholder.form(key='update table xml', clear_on_submit=True):
+                    if full_table:
+                        change = st.text_area('Update text', '', height=300)
+                        if change == '':
+                            st.form_submit_button(label='update')
+                        else:
+                            st.form_submit_button(label='Update', on_click=redactor.change_table(subtitle_content, change))
+                    else:
+                        max_height, max_width = redactor.parce_table(subtitle_content)
+                        i = st.number_input('X', min_value=0, max_value=max_height + 1, value=0, step=1)
+                        for j in range(max_width+1):
+                            st.text_input(label=f'cell {j}', value='', key=f'{j}')
+                        st.form_submit_button(label='update', on_click=redactor.change_cell(subtitle_content, i,
+                                                                                                max_height, max_width))
+
+
+
             else:
                 with st.form(key='Update text'):
-                    change = st.text_area('Update text', '')
+                    change = st.text_area('Update text', '', height=300)
                     if change == '':
                         st.form_submit_button(label='update')
                     else:
                         st.form_submit_button(label='Update', on_click=redactor.change_text(subtitle_content, change))
 
 
+        # for i in range(max_width+1):
+        #     st.session_state[f'{i}'] = ''
+
         redactor.reload_changes()
 
-        new_name = st.text_input('name file without ".xml"')
+        new_name = st.text_input('name file without "Пневмония (бак)5.xml"')
         if st.button('save file'):
             redactor.save_changes(new_name)
             st.write('Done!')

@@ -143,60 +143,59 @@ class Redactor:
         st.dataframe(df)
         return max_height - 1, max_width - 1
 
-    def change_cell(self, current_table, i, j, max_height, max_width, change):
+    def change_cell(self, current_table, i, max_height, max_width):
         """Change exist cell in current table"""
-        if change == '':
+
+        changes = [st.session_state[f'{i}'] for i in range(max_width+1)]
+        empty_changes = True
+        for change in changes:
+            if change != '':
+                empty_changes = False
+        if empty_changes:
             return None
-        if (i <= max_height) and (j <= max_width):
-            st.write('table[{0},{1}] changed on {2}'.format(i, j, change))
-            try:
-                cell = current_table.find_all('tr')[i].find_all('td')[j]
-            except:
-                cell = current_table.find_all('tr')[i].find_all('th')[j]
-            cell.string = change
+        if len(current_table.find('tbody').find_all('tr')[0].find_all('td')) != 0:
+            tag = 'td'
         else:
-            if i > max_height:
-                row = self.content.new_tag('tr')
-                current_table.append(row)
-                state = 0
-            else:
-                row = current_table.find_all('tr')[i]
-                state = 1
-            print(row.prettify())
-            if len(current_table.find_all('tr')[0].find_all('td')) != 0:
-                tag = 'td'
-            else:
-                tag = 'th'
-            if state == 0:
-                if j > max_width:
-                    count_tags = j
-                else:
-                    count_tags = max_width
-                for num in range(count_tags + 1):
-                    cell = self.content.new_tag(tag)
-                    row.append(cell)
-                    if j == num:
-                        cell.string = change
-            if state == 1:
-                cell = self.content.new_tag(tag)
-                row.append(cell)
-                cell.string = change
-
-    def change_list(self, subtitle, label, change):
-        """Rewrite holds in list text xml"""
-        if label != 'append':
-            item = self.items[label]
+            tag = 'th'
+        if i <= max_height:
+            row = current_table.find('tbody').find_all('tr')[i]
+            row.clear()
         else:
-            item = self.content.new_tag('item')
-            subtitle.append(item)
-            item.string = 'Write...'
-        try:
-            item.text.string.replace_with(change)
-        except:
-            item.string.replace_with(change)
+            row = self.content.new_tag('tr')
+            current_table.find('tbody').append(row)
+        for cell in changes:
+            new_cell = self.content.new_tag(tag)
+            new_cell.string = cell
+            row.append(new_cell)
 
-    def change_paragraph(self):
-        """Do it!"""
+    def change_table(self, current_table, change):
+        split_simbol = ':'
+        if len(current_table.find('tbody').find_all('tr')[0].find_all('td')) != 0:
+            tag = 'td'
+        else:
+            tag = 'th'
+        print(change.split('\n')[0].split(' '))
+        pos_cells = [int(c) for c in change.split('\n')[0].split(' ') if c != '']
+        max_pos = max(pos_cells)
+        for elem in range(max_pos+1):
+            if elem not in pos_cells:
+                st.write(elem)
+        rows = []
+        for row in change.split('\n')[1:]:
+            new_row = ['-' for i in range(max_pos+1)]
+            for current_pos, exist_pos in enumerate(pos_cells):
+                new_row[exist_pos] = row.split(split_simbol)[current_pos]
+            rows.append(new_row)
+        st.write(rows)
+        current_table.find('tbody').clear()
+        for row in rows:
+            new_row = self.content.new_tag('tr')
+            for cell in row:
+                new_cell = self.content.new_tag(tag)
+                new_cell.string = cell
+                new_row.append(new_cell)
+            current_table.find('tbody').append(new_row)
+        st.write(change)
 
     def change_text(self, subtitle, change):
         new_text = self.content.new_tag('text')
