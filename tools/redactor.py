@@ -33,6 +33,11 @@ class Redactor:
         self.subtitles = None
         self.store_dir = os.path.abspath('store/saved_files')
         self.saved_dir = os.path.abspath('store/epicrises')
+        if not os.path.exists(self.saved_dir):
+            os.mkdir(self.saved_dir)
+        if not os.path.exists(self.store_dir):
+            os.mkdir(self.store_dir)
+
         self.items = None
 
     def loader(self):
@@ -44,7 +49,7 @@ class Redactor:
 
         save_file = os.path.join(self.store_dir, self.name)
         if os.path.exists(save_file):
-            content = open(save_file).read()
+            content = open(save_file, encoding='utf-8').read()
         else:
             bytes_data = self.file.getvalue()
             string = StringIO(bytes_data.decode('utf-8'))
@@ -73,7 +78,7 @@ class Redactor:
         # except:
         #     st.write(title.parent.find('text'))
         # return False, title, False
-        st.write(title.parent.contents)
+        # st.write(title.parent.contents)
         content = title.parent.find('text').find_all('table')
         if len(content) == 0:
             print('None tables only text')
@@ -179,14 +184,15 @@ class Redactor:
         max_pos = max(pos_cells)
         for elem in range(max_pos+1):
             if elem not in pos_cells:
-                st.write(elem)
+                # st.write(elem)
+                pass
         rows = []
         for row in change.split('\n')[1:]:
             new_row = ['-' for i in range(max_pos+1)]
             for current_pos, exist_pos in enumerate(pos_cells):
                 new_row[exist_pos] = row.split(split_simbol)[current_pos]
             rows.append(new_row)
-        st.write(rows)
+        # st.write(rows)
         current_table.find('tbody').clear()
         for row in rows:
             new_row = self.content.new_tag('tr')
@@ -195,7 +201,7 @@ class Redactor:
                 new_cell.string = cell
                 new_row.append(new_cell)
             current_table.find('tbody').append(new_row)
-        st.write(change)
+        # st.write(change)
 
     def change_text(self, subtitle, change):
         new_text = self.content.new_tag('text')
@@ -208,8 +214,9 @@ class Redactor:
         """save cahnges in new file"""
 
         name = os.path.join(self.store_dir, self.name)
-        with open(name, 'w') as xml_file:
+        with open(name, 'w', encoding='utf-8') as xml_file:
             xml_file.write(str(self.content.prettify()))
+
 
     def save_changes(self, new_name):
         """save file like new xml epicrise"""
@@ -217,6 +224,15 @@ class Redactor:
         name = os.path.join(self.store_dir, self.name)
         new_name = os.path.join(self.saved_dir, new_name)
         os.rename(name, new_name)
+        return new_name
+
+    def download_changes(self, new_path, new_name):
+        new_file = open(new_path, encoding='utf-8').read()
+        st.download_button(
+            label='Download file',
+            data=new_file,
+            file_name=f'{new_name}.xml',
+        )
 
     def get_state(self, state: bool, text):
         """request state(bool, True = success, False = error)

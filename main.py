@@ -43,8 +43,9 @@ if __name__ == '__main__':
                 subtitle_content = title_content
 
             if tables:
-                full_table = st.checkbox('Refactor full table', value=False)
+                # full_table = st.checkbox('Refactor full table', value=False)
                 placeholder = st.empty()
+                full_table = None
 
                 with placeholder.form(key='update table xml', clear_on_submit=True):
                     if full_table:
@@ -64,7 +65,7 @@ if __name__ == '__main__':
 
 
             else:
-                with st.form(key='Update text'):
+                with st.form(key='Update text', clear_on_submit=True):
                     change = st.text_area('Update text', '', height=300)
                     if change == '':
                         st.form_submit_button(label='update')
@@ -77,7 +78,8 @@ if __name__ == '__main__':
 
         redactor.reload_changes()
 
-        new_name = st.text_input('name file without "Пневмония (бак)5.xml"')
+        new_name = st.text_input('name file without ".xml"')
         if st.button('save file'):
-            redactor.save_changes(new_name)
+            new_path = redactor.save_changes(new_name)
+            redactor.download_changes(new_path, new_name)
             st.write('Done!')
