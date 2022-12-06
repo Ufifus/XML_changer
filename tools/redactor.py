@@ -6,6 +6,10 @@ import streamlit as st
 from io import StringIO, BytesIO
 
 
+store = os.path.abspath('store')
+if not os.path.exists(store):
+    os.mkdir(store)
+
 def viewer(file):
 
     output = BytesIO(file)
